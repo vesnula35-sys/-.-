@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Перетаскивание: Название ↔ Определение</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7fa;
+            margin: 0;
+            padding: 40px;
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .terms {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .term-box {
+            padding: 12px 20px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 6px;
+            cursor: move;
+            font-weight: bold;
+            text-align: center;
+            width: 180px;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+        .definition {
+            border: 2px dashed #ccc;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 8px;
+            min-height: 60px;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .definition p {
+            margin: 0;
+            color: #555;
+        }
+        .definition.highlight {
+            border-color: #2ecc71;
+            background-color: #edf7ef;
+        }
+        .definition .match {
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 8px;
+        }
+        .reset-btn {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reset-btn:hover {
+            background-color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Сопоставьте название с определением</h1>
+    <p style="text-align: center; color: #7f8c8d;">Перетащите название в нужное поле с определением</p>
+
+    <!-- Названия для перетаскивания -->
+    <div class="terms">
+        <div class="term-box" draggable="true" id="drag-поликлиника">Поликлиника</div>
+        <div class="term-box" draggable="true" id="drag-больница">Больница</div>
+    </div>
+
+    <!-- Определения (зоны сброса) -->
+    <div class="definitions">
+        <div class="definition" data-target="поликлиника">
+            <p><strong>Определение:</strong> медицинское учреждение, где ведут прием врачи разных специальностей</p>
+            <div class="match-area"></div>
+        </div>
+
+        <div class="definition" data-target="больница">
+            <p><strong>Определение:</strong> медицинское учреждение, где на излечении лежат больные</p>
+            <div class="match-area"></div>
+        </div>
+    </div>
+
+    <button class="reset-btn" onclick="resetAll()">Сбросить всё</button>
+</div>
+
+<script>
+    // При загрузке страницы настраиваем drag-and-drop
+    document.addEventListener("DOMContentLoaded", function () {
+        const draggables = document.querySelectorAll(".term-box");
+        const dropZones = document.querySelectorAll(".definition");
+
+        // Начало перетаскивания
+        draggables.forEach(draggable => {
+            draggable.addEventListener("dragstart", function (e) {
+                e.dataTransfer.setData("text/plain", this.id);
+                this.style.opacity = "0.6";
+            });
+
+            draggable.addEventListener("dragend", function () {
+                this.style.opacity = "1";
+            });
+        });
+
+        // Поведение при наведении над зоной сброса
+        dropZones.forEach(zone => {
+            zone.addEventListener("dragover", function (e) {
+                e.preventDefault(); // разрешаем drop
+                this.classList.add("highlight");
+            });
+
+            zone.addEventListener("dragleave", function () {
+                this.classList.remove("highlight");
+            });
+
+            zone.addEventListener("drop", function (e) {
+                e.preventDefault();
+                this.classList.remove("highlight");
+
+                const data = e.dataTransfer.getData("text/plain");
+                const draggableElement = document.getElementById(data);
+                const termName = data.replace("drag-", ""); // получаем имя: "поликлиника"
+
+                const targetMatch = this.getAttribute("data-target"); // правильный ответ
+
+                // Очистка других зон, если это же название уже где-то есть
+                clearExistingMatch(termName);
+
+                if (this.querySelector(".match")) {
+                    // Если тут уже что-то есть — удаляем
+                    this.querySelector(".match").remove();
+                }
+
+                // Создаём элемент с названием
+                const matchSpan = document.createElement("div");
+                matchSpan.className = "match";
+                matchSpan.textContent = termName.charAt(0).toUpperCase() + termName.slice(1);
+
+                // Добавляем проверку: правильно ли сопоставлено?
+                if (termName === targetMatch) {
+                    matchSpan.style.color = "#27ae60";
+                } else {
+                    matchSpan.style.color = "#e74c3c";
+                }
+
+                this.querySelector(".match-area").appendChild(matchSpan);
+            });
+        });
+    });
+
+    // Удалить совпадение, если это название уже где-то использовано
+    function clearExistingMatch(termName) {
+        const allMatches = document.querySelectorAll(".match");
+        allMatches.forEach(match => {
+            if (match.textContent.toLowerCase() === termName) {
+                match.parentElement.removeChild(match);
+            }
+        });
+    }
+
+    // Сброс всех результатов
+    function resetAll() {
+        document.querySelectorAll(".match").forEach(el => el.remove());
+    }
+</script>
+
+</body>
+</html>
