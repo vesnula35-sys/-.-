@@ -2,321 +2,478 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Медицинские учреждения</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Квест-искалка «Найди предметы гигиены»</title>
     <style>
+        :root {
+            --blue: #1f7acb;
+            --blue-dark: #12528d;
+            --green: #1f9f64;
+            --yellow: #ffd66b;
+            --pink: #ff7aa8;
+            --bg: #f4fbff;
+            --card: #ffffff;
+            --text: #203040;
+            --shadow: 0 14px 34px rgba(31, 122, 203, 0.18);
+        }
+
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f5f3;
-            color: #444;
             margin: 0;
-            padding: 40px;
-            line-height: 1.6;
+            min-height: 100vh;
+            font-family: Arial, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 12% 8%, rgba(255, 214, 107, 0.55), transparent 24%),
+                radial-gradient(circle at 88% 16%, rgba(255, 122, 168, 0.35), transparent 24%),
+                linear-gradient(180deg, #e5f6ff 0%, var(--bg) 48%, #eefdf5 100%);
         }
-        .container {
-            max-width: 900px;
+
+        .page {
+            width: min(1180px, 96vw);
             margin: 0 auto;
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+            padding: 18px 0 26px;
         }
+
+        header {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            align-items: center;
+            padding: 18px;
+            margin-bottom: 14px;
+            border-radius: 26px;
+            background: rgba(255,255,255,0.88);
+            box-shadow: var(--shadow);
+        }
+
         h1 {
-            text-align: center;
-            color: #2c7873;
-            font-weight: 600;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        p.subtitle {
-            text-align: center;
-            color: #6a9c89;
-            font-style: italic;
-            margin-bottom: 30px;
+            margin: 0 0 8px;
+            font-size: clamp(26px, 4vw, 44px);
+            line-height: 1.05;
+            color: var(--blue-dark);
         }
 
-        .terms {
+        .lead {
+            margin: 0;
+            font-size: clamp(16px, 2.3vw, 22px);
+            font-weight: 700;
+        }
+
+        .simple-rules {
+            margin: 10px 0 0;
+            padding: 0;
             display: flex;
-            justify-content: space-around;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 8px;
+            list-style: none;
         }
 
-        .term-box {
-            padding: 14px 22px;
-            background-color: #d9e5e3;
-            color: #000;
-            border: 1px solid #b8cbb8;
-            border-radius: 8px;
-            cursor: move;
-            font-weight: bold;
+        .simple-rules li {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eaf6ff;
+            border: 2px solid #c9e8ff;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .status-panel {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(96px, 1fr));
+            gap: 10px;
+            min-width: min(420px, 100%);
+        }
+
+        .status-box {
+            padding: 12px;
             text-align: center;
-            width: 180px;
+            border-radius: 18px;
+            background: #fff8dc;
+            border: 3px solid var(--yellow);
+        }
+
+        .status-box strong {
+            display: block;
+            font-size: 30px;
+            color: var(--blue-dark);
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 14px;
+        }
+
+        button {
+            border: 0;
+            border-radius: 16px;
+            padding: 13px 18px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            color: #fff;
+            background: var(--blue);
+            box-shadow: 0 8px 0 var(--blue-dark);
+            transition: transform 0.12s ease, box-shadow 0.12s ease;
+        }
+
+        button:hover, button:focus-visible { transform: translateY(-2px); }
+        button:active { transform: translateY(5px); box-shadow: 0 3px 0 var(--blue-dark); }
+        .secondary { background: var(--green); box-shadow: 0 8px 0 #11633d; }
+        .soft { background: #7b61ff; box-shadow: 0 8px 0 #4f3bb5; }
+
+        .game-wrap {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 280px;
+            gap: 14px;
+        }
+
+        .scene {
+            position: relative;
+            min-height: 640px;
+            overflow: hidden;
+            border: 8px solid #fff;
+            border-radius: 34px;
+            background:
+                linear-gradient(#bfe9ff 0 22%, transparent 22%),
+                linear-gradient(90deg, transparent 0 16%, rgba(255,255,255,0.8) 16% 18%, transparent 18% 82%, rgba(255,255,255,0.8) 82% 84%, transparent 84%),
+                linear-gradient(#f7d9ad 22% 66%, #b9e6c9 66% 100%);
+            box-shadow: var(--shadow);
+        }
+
+        .room-label {
+            position: absolute;
+            left: 4%;
+            top: 3%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            background: rgba(255,255,255,0.9);
+            font-size: 20px;
+            font-weight: 900;
+        }
+
+        .furniture, .decoration {
+            position: absolute;
             user-select: none;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s;
-        }
-        .term-box:hover {
-            background-color: #c7d7d3;
-            transform: translateY(-2px);
-        }
-        .term-box.disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
             pointer-events: none;
         }
 
-        .definitions {
+        .sink { left: 6%; top: 31%; width: 34%; height: 18%; border-radius: 22px 22px 60px 60px; background: #eef7ff; border: 5px solid #9ecae8; }
+        .sink::before { content: ""; position: absolute; left: 37%; top: -34px; width: 26%; height: 38px; border: 8px solid #7aaac8; border-bottom: 0; border-radius: 24px 24px 0 0; }
+        .mirror { left: 9%; top: 8%; width: 28%; height: 19%; border-radius: 22px; background: linear-gradient(135deg, #e6fbff, #8fd9ff); border: 8px solid #ffffff; box-shadow: inset 0 0 0 4px #a8dbf2; }
+        .shelf { left: 53%; top: 18%; width: 34%; height: 4%; border-radius: 12px; background: #9b6b43; box-shadow: 0 18px 0 #d8a16e; }
+        .cabinet { left: 57%; top: 37%; width: 34%; height: 25%; border-radius: 18px; background: #f7b267; border: 5px solid #c9782e; }
+        .cabinet::after { content: ""; position: absolute; left: 49%; top: 0; bottom: 0; border-left: 4px solid #c9782e; }
+        .basket { left: 8%; top: 72%; width: 21%; height: 18%; border-radius: 20px 20px 34px 34px; background: repeating-linear-gradient(45deg, #d99757 0 10px, #c17b3b 10px 20px); border: 5px solid #9d5b26; }
+        .bathmat { left: 38%; top: 76%; width: 35%; height: 14%; border-radius: 50%; background: #8ee6c1; opacity: 0.9; }
+        .bubbles { right: 5%; top: 4%; font-size: 54px; opacity: 0.6; }
+
+        .item {
+            position: absolute;
+            transform: translate(-50%, -50%);
             display: grid;
-            gap: 18px;
-        }
-
-        .definition {
-            border: 2px dashed #b8cbb8;
-            padding: 18px;
-            border-radius: 10px;
-            min-height: 80px;
-            background-color: #edf5f3;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-        .definition.highlight {
-            border-color: #2c7873;
-            background-color: #ddf0eb;
-        }
-        .definition p {
-            margin: 0 0 10px 0;
-            color: #333;
-        }
-        .definition .match {
-            font-weight: bold;
-            padding: 6px 12px;
-            border-radius: 6px;
-            display: inline-block;
-        }
-        .match.correct {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .match.wrong {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .match.missing {
-            color: #777;
-            font-style: italic;
-        }
-
-        .btn-group {
-            text-align: center;
-            margin: 30px 0 10px;
-        }
-        .check-btn, .reset-btn {
-            padding: 12px 30px;
-            margin: 0 10px;
-            border: none;
-            border-radius: 6px;
+            place-items: center;
+            width: var(--size);
+            height: var(--size);
+            border: 4px solid rgba(255,255,255,0.9);
+            border-radius: 28%;
+            background: rgba(255,255,255,0.55);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.12);
+            font-size: calc(var(--size) * 0.58);
             cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
+            transition: transform 0.16s ease, filter 0.16s ease, opacity 0.16s ease;
         }
-        .check-btn {
-            background-color: #6a9c89;
-            color: white;
+
+        .item:hover, .item:focus-visible {
+            transform: translate(-50%, -50%) scale(1.12) rotate(-3deg);
+            outline: 5px solid #ffe36e;
+            z-index: 4;
         }
-        .check-btn:hover {
-            background-color: #5a8a79;
+
+        .item.found {
+            opacity: 0.2;
+            pointer-events: none;
+            filter: grayscale(0.8);
         }
-        .reset-btn {
-            background-color: #a2d2c9;
-            color: #000;
+
+        .item.bad { background: rgba(255, 255, 255, 0.42); }
+        .item.bad.shake { animation: shake 0.36s ease; }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(-50%, -50%); }
+            25% { transform: translate(-58%, -50%) rotate(-5deg); }
+            75% { transform: translate(-42%, -50%) rotate(5deg); }
         }
-        .reset-btn:hover {
-            background-color: #92c2bc;
+
+        .side-card {
+            border-radius: 28px;
+            padding: 18px;
+            background: rgba(255,255,255,0.92);
+            box-shadow: var(--shadow);
+        }
+
+        .side-card h2 { margin: 0 0 12px; color: var(--blue-dark); }
+        .target-list { display: grid; gap: 9px; padding: 0; margin: 0; list-style: none; }
+        .target-list li {
+            display: grid;
+            grid-template-columns: 38px 1fr;
+            align-items: center;
+            gap: 9px;
+            padding: 9px;
+            border-radius: 16px;
+            background: #eef8ff;
+            border: 2px solid #d5edff;
+            font-size: 17px;
+            font-weight: 800;
+        }
+        .target-list li.done { background: #e6ffe9; border-color: #9ee7ac; text-decoration: line-through; color: #3d7046; }
+        .hint-box { margin-top: 14px; padding: 12px; border-radius: 18px; background: #fff5cf; border: 2px solid #ffe18a; font-size: 17px; font-weight: 700; }
+
+        .message {
+            min-height: 34px;
+            margin: 12px 0 0;
+            text-align: center;
+            font-size: 22px;
+            font-weight: 900;
+            color: var(--blue-dark);
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            place-items: center;
+            padding: 18px;
+            background: rgba(20, 45, 70, 0.55);
+            z-index: 10;
+        }
+        .modal.open { display: grid; }
+        .modal-card {
+            width: min(520px, 100%);
+            border-radius: 28px;
+            padding: 26px;
+            text-align: center;
+            background: #fff;
+            box-shadow: 0 22px 60px rgba(0,0,0,0.3);
+        }
+        .modal-card h2 { margin: 0 0 10px; font-size: 34px; color: var(--blue-dark); }
+        .modal-card p { font-size: 21px; font-weight: 800; }
+
+        @media (max-width: 880px) {
+            header, .game-wrap { grid-template-columns: 1fr; }
+            .status-panel { min-width: 0; }
+            .scene { min-height: 590px; }
         }
     </style>
 </head>
 <body>
+    <main class="page">
+        <header>
+            <div>
+                <h1>Квест-искалка «Чистюля»</h1>
+                <p class="lead">Найди и нажми только предметы личной гигиены. Собери максимум за 60 секунд!</p>
+                <ul class="simple-rules" aria-label="Правила игры">
+                    <li>👆 Нажимай на предмет</li>
+                    <li>✅ Гигиена: +1 балл</li>
+                    <li>⏱️ Время ограничено</li>
+                </ul>
+            </div>
+            <section class="status-panel" aria-label="Счёт игры">
+                <div class="status-box">Время<strong id="time">60</strong></div>
+                <div class="status-box">Баллы<strong id="score">0</strong></div>
+                <div class="status-box">Найдено<strong><span id="found">0</span>/10</strong></div>
+            </section>
+        </header>
 
-<div class="container">
-    <h1>Медицинские учреждения</h1>
-    <p class="subtitle">Перетащите название в соответствующее определение</p>
+        <div class="controls">
+            <button id="startBtn">▶️ Начать игру</button>
+            <button id="restartBtn" class="secondary">🔄 Заново</button>
+            <button id="hintBtn" class="soft">💡 Подсказка</button>
+        </div>
 
-    <!-- Названия для перетаскивания -->
-    <div class="terms" id="termsContainer">
-        <div class="term-box" draggable="true" id="drag-поликлиника">Поликлиника</div>
-        <div class="term-box" draggable="true" id="drag-больница">Больница</div>
-        <div class="term-box" draggable="true" id="drag-диспансер">Диспансер</div>
-        <div class="term-box" draggable="true" id="drag-аптека">Аптека</div>
+        <section class="game-wrap">
+            <div class="scene" id="scene" aria-label="Ванная комната с спрятанными предметами">
+                <div class="room-label">Ванная комната</div>
+                <div class="decoration bubbles">🫧</div>
+                <div class="decoration mirror"></div>
+                <div class="furniture sink"></div>
+                <div class="furniture shelf"></div>
+                <div class="furniture cabinet"></div>
+                <div class="furniture basket"></div>
+                <div class="decoration bathmat"></div>
+            </div>
+
+            <aside class="side-card">
+                <h2>Что ищем?</h2>
+                <ul class="target-list" id="targetList"></ul>
+                <div class="hint-box" id="hintText">Подсказка появится здесь. Игра сделана крупной и спокойной, чтобы было удобно ученикам 5 класса.</div>
+                <p class="message" id="message">Нажми «Начать игру».</p>
+            </aside>
+        </section>
+    </main>
+
+    <div class="modal" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+        <div class="modal-card">
+            <h2 id="resultTitle">Игра окончена!</h2>
+            <p id="resultText"></p>
+            <button id="playAgainBtn">Играть ещё раз</button>
+        </div>
     </div>
 
-    <!-- Определения (зоны сброса) -->
-    <div class="definitions">
-        <div class="definition" data-target="поликлиника" id="def-поликлиника">
-            <p><strong>Определение:</strong> медицинское учреждение, где ведут приём врачи разных специальностей.</p>
-            <div class="match-area"></div>
-        </div>
+    <script>
+        const hygieneItems = [
+            { id: "soap", name: "Мыло", icon: "🧼", x: 18, y: 46, size: 66, hint: "Ищи предмет, которым моют руки." },
+            { id: "toothbrush", name: "Зубная щётка", icon: "🪥", x: 33, y: 30, size: 58, hint: "Ищи предмет для чистки зубов." },
+            { id: "toothpaste", name: "Зубная паста", icon: "🧴", x: 58, y: 23, size: 54, hint: "Она нужна вместе с зубной щёткой." },
+            { id: "comb", name: "Расчёска", icon: "🪮", x: 74, y: 31, size: 58, hint: "Ей приводят волосы в порядок." },
+            { id: "towel", name: "Полотенце", icon: "🧻", x: 47, y: 61, size: 62, hint: "Им вытирают руки и лицо." },
+            { id: "shampoo", name: "Шампунь", icon: "🧴", x: 83, y: 49, size: 62, hint: "Им моют волосы." },
+            { id: "sponge", name: "Губка", icon: "🧽", x: 23, y: 77, size: 60, hint: "Ею моют тело." },
+            { id: "napkins", name: "Салфетки", icon: "🧻", x: 66, y: 73, size: 56, hint: "Ими можно вытереть нос или руки." },
+            { id: "deodorant", name: "Дезодорант", icon: "🧴", x: 91, y: 72, size: 52, hint: "Помогает сохранять свежесть тела." },
+            { id: "nailclipper", name: "Ножницы для ногтей", icon: "✂️", x: 40, y: 83, size: 54, hint: "Ими аккуратно подстригают ногти." }
+        ];
 
-        <div class="definition" data-target="больница" id="def-больница">
-            <p><strong>Определение:</strong> медицинское учреждение, где на излечении находятся больные.</p>
-            <div class="match-area"></div>
-        </div>
+        const distractors = [
+            { name: "Мяч", icon: "⚽", x: 52, y: 44, size: 54 },
+            { name: "Книга", icon: "📘", x: 70, y: 54, size: 58 },
+            { name: "Яблоко", icon: "🍎", x: 12, y: 63, size: 54 },
+            { name: "Карандаш", icon: "✏️", x: 86, y: 21, size: 50 },
+            { name: "Машинка", icon: "🚗", x: 55, y: 86, size: 58 }
+        ];
 
-        <div class="definition" data-target="диспансер" id="def-диспансер">
-            <p><strong>Определение:</strong> медицинское учреждение, где наблюдают за людьми, имеющими склонность к определённым заболеваниям (например, туберкулёзу, диабету, инфекционным или хроническим заболеваниям), для определения диагноза проблемы и начала лечения.</p>
-            <div class="match-area"></div>
-        </div>
+        const timeLimit = 60;
+        let timeLeft = timeLimit;
+        let score = 0;
+        let foundCount = 0;
+        let timerId = null;
+        let gameActive = false;
+        let hintIndex = 0;
 
-        <div class="definition" data-target="аптека" id="def-аптека">
-            <p><strong>Определение:</strong> медицинское учреждение, где отпускаются лекарственные средства по рецептам врачей и без рецепта.</p>
-            <div class="match-area"></div>
-        </div>
-    </div>
+        const scene = document.getElementById("scene");
+        const targetList = document.getElementById("targetList");
+        const timeEl = document.getElementById("time");
+        const scoreEl = document.getElementById("score");
+        const foundEl = document.getElementById("found");
+        const messageEl = document.getElementById("message");
+        const hintText = document.getElementById("hintText");
+        const modal = document.getElementById("resultModal");
+        const resultText = document.getElementById("resultText");
 
-    <!-- Кнопки -->
-    <div class="btn-group">
-        <button class="check-btn" onclick="checkAll()">Проверить все</button>
-        <button class="reset-btn" onclick="resetAll()">Сбросить</button>
-    </div>
-</div>
+        function renderGame() {
+            scene.querySelectorAll(".item").forEach((item) => item.remove());
+            targetList.innerHTML = "";
 
-<script>
-    // Все правильные пары
-    const correctPairs = {
-        "def-поликлиника": "поликлиника",
-        "def-больница": "больница",
-        "def-диспансер": "диспансер",
-        "def-аптека": "аптека"
-    };
-
-    // При загрузке страницы
-    document.addEventListener("DOMContentLoaded", function () {
-        const draggables = document.querySelectorAll(".term-box");
-        const dropZones = document.querySelectorAll(".definition");
-
-        draggables.forEach(draggable => {
-            draggable.addEventListener("dragstart", function (e) {
-                e.dataTransfer.setData("text/plain", this.id);
-                this.style.opacity = "0.7";
+            [...hygieneItems, ...distractors].forEach((item) => {
+                const button = document.createElement("button");
+                button.className = `item ${item.id ? "good" : "bad"}`;
+                button.type = "button";
+                button.style.left = `${item.x}%`;
+                button.style.top = `${item.y}%`;
+                button.style.setProperty("--size", `${item.size}px`);
+                button.dataset.id = item.id || "";
+                button.dataset.name = item.name;
+                button.setAttribute("aria-label", item.name);
+                button.textContent = item.icon;
+                button.addEventListener("click", () => handleItemClick(button, item));
+                scene.appendChild(button);
             });
 
-            draggable.addEventListener("dragend", function () {
-                this.style.opacity = "1";
+            hygieneItems.forEach((item) => {
+                const li = document.createElement("li");
+                li.id = `target-${item.id}`;
+                li.innerHTML = `<span>${item.icon}</span><span>${item.name}</span>`;
+                targetList.appendChild(li);
             });
-        });
+        }
 
-        dropZones.forEach(zone => {
-            zone.addEventListener("dragover", function (e) {
-                e.preventDefault();
-                this.classList.add("highlight");
-            });
+        function startGame() {
+            resetGame(false);
+            gameActive = true;
+            messageEl.textContent = "Ищи предметы личной гигиены!";
+            timerId = setInterval(() => {
+                timeLeft -= 1;
+                updateStats();
+                if (timeLeft <= 0) finishGame();
+            }, 1000);
+        }
 
-            zone.addEventListener("dragleave", function () {
-                this.classList.remove("highlight");
-            });
-
-            zone.addEventListener("drop", function (e) {
-                e.preventDefault();
-                this.classList.remove("highlight");
-
-                const data = e.dataTransfer.getData("text/plain");
-                const termName = data.replace("drag-", "").toLowerCase();
-                const termElement = document.getElementById(data);
-
-                // Удаляем плашку после сброса
-                termElement.classList.add("disabled");
-                termElement.draggable = false;
-
-                // Очищаем другие зоны от этого термина
-                clearExistingMatch(termName);
-
-                const matchArea = this.querySelector(".match-area");
-                if (this.querySelector(".match")) {
-                    this.querySelector(".match").remove();
-                }
-
-                const matchSpan = document.createElement("div");
-                matchSpan.className = "match";
-                matchSpan.textContent = termName.charAt(0).toUpperCase() + termName.slice(1);
-
-                // Временно не проверяем здесь — пусть проверит кнопка
-                matchArea.appendChild(matchSpan);
-            });
-        });
-    });
-
-    // Удалить совпадение, если название уже где-то есть
-    function clearExistingMatch(termName) {
-        const allMatches = document.querySelectorAll(".match");
-        allMatches.forEach(match => {
-            if (match.textContent.toLowerCase() === termName) {
-                match.parentElement.removeChild(match);
+        function handleItemClick(button, item) {
+            if (!gameActive) {
+                messageEl.textContent = "Сначала нажми «Начать игру».";
+                return;
             }
-        });
 
-        // Вернуть возможность перетаскивания только для тех, что ещё не использованы
-        const terms = document.querySelectorAll(".term-box");
-        terms.forEach(term => {
-            const currentName = term.id.replace("drag-", "").toLowerCase();
-            if (currentName === termName) {
-                term.classList.remove("disabled");
-                term.draggable = true;
-            }
-        });
-    }
-
-    // Проверить все соответствия
-    function checkAll() {
-        let allCorrect = true;
-
-        for (const [defId, correctTerm] of Object.entries(correctPairs)) {
-            const defZone = document.getElementById(defId);
-            const matchArea = defZone.querySelector(".match-area");
-            const match = matchArea.querySelector(".match");
-
-            // Удаляем предыдущий статус
-            if (match && match.classList.contains("correct")) match.classList.remove("correct");
-            if (match && match.classList.contains("wrong")) match.classList.remove("wrong");
-
-            if (!match) {
-                allCorrect = false;
-                const hint = document.createElement("div");
-                hint.className = "match missing";
-                hint.textContent = `Не хватает: ${correctTerm.charAt(0).toUpperCase() + correctTerm.slice(1)}`;
-                matchArea.appendChild(hint);
+            if (item.id) {
+                button.classList.add("found");
+                document.getElementById(`target-${item.id}`).classList.add("done");
+                score += 1;
+                foundCount += 1;
+                messageEl.textContent = `Верно: ${item.name}!`;
+                updateStats();
+                if (foundCount === hygieneItems.length) finishGame();
             } else {
-                const userTerm = match.textContent.toLowerCase();
-                if (userTerm === correctTerm) {
-                    match.classList.add("correct");
-                } else {
-                    match.classList.add("wrong");
-                    allCorrect = false;
-                }
+                score = Math.max(0, score - 1);
+                button.classList.add("shake");
+                messageEl.textContent = `${item.name} — это не предмет гигиены.`;
+                setTimeout(() => button.classList.remove("shake"), 400);
+                updateStats();
             }
         }
 
-        if (allCorrect) {
-            alert("🎉 Отлично! Все соответствия верны!");
-        } else {
-            alert("❌ Есть ошибки. Проверьте подсказки.");
+        function showHint() {
+            const remaining = hygieneItems.filter((item) => !document.getElementById(`target-${item.id}`).classList.contains("done"));
+            if (!remaining.length) {
+                hintText.textContent = "Все предметы найдены. Молодец!";
+                return;
+            }
+            const item = remaining[hintIndex % remaining.length];
+            hintText.textContent = `💡 ${item.hint}`;
+            hintIndex += 1;
         }
-    }
 
-    // Сбросить всё
-    function resetAll() {
-        // Очистить все match
-        document.querySelectorAll(".match").forEach(el => el.remove());
+        function updateStats() {
+            timeEl.textContent = timeLeft;
+            scoreEl.textContent = score;
+            foundEl.textContent = foundCount;
+        }
 
-        // Вернуть все плашки активными
-        const terms = document.querySelectorAll(".term-box");
-        terms.forEach(term => {
-            term.classList.remove("disabled");
-            term.draggable = true;
-        });
-    }
-</script>
+        function finishGame() {
+            gameActive = false;
+            clearInterval(timerId);
+            timerId = null;
+            const perfect = foundCount === hygieneItems.length;
+            resultText.textContent = perfect
+                ? `Отлично! Ты нашёл все предметы. Баллы: ${score}.`
+                : `Время вышло. Найдено: ${foundCount} из ${hygieneItems.length}. Баллы: ${score}.`;
+            modal.classList.add("open");
+        }
 
+        function resetGame(closeModal = true) {
+            clearInterval(timerId);
+            timerId = null;
+            gameActive = false;
+            timeLeft = timeLimit;
+            score = 0;
+            foundCount = 0;
+            hintIndex = 0;
+            messageEl.textContent = "Нажми «Начать игру».";
+            hintText.textContent = "Подсказка появится здесь. Игра сделана крупной и спокойной, чтобы было удобно ученикам 5 класса.";
+            if (closeModal) modal.classList.remove("open");
+            renderGame();
+            updateStats();
+        }
+
+        document.getElementById("startBtn").addEventListener("click", startGame);
+        document.getElementById("restartBtn").addEventListener("click", () => resetGame(true));
+        document.getElementById("hintBtn").addEventListener("click", showHint);
+        document.getElementById("playAgainBtn").addEventListener("click", () => resetGame(true));
+
+        resetGame();
+    </script>
 </body>
 </html>
